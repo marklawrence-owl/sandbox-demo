@@ -1,0 +1,12 @@
+crompco_sales:
+  host: "vault-service.crquhfau4stz.us-east-1.rds.amazonaws.com"
+  user: "owl_datawarehouse"
+  password: "![THTMSzJsZr48Cu0gek5rYmtBhIW7ugcu]"
+  account: "pi75377.central-us.azure"
+  warehouse: "DEV_INGESTION_WH"
+  database: "CROMPCO_DEV"
+  schema: "CROMPCO_STAGE"
+  snowflake_username: "HARIVAMSI_PULLIPUDI"
+  snowflake_password: "![GO0BX/UmhVXmGpCWkTYnQA==]"
+  role: "DEV_INGESTION_ROLE"
+  

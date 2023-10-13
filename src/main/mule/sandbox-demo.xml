@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
+	<flow name="sandbox-demoFlow" doc:id="ecaa91e7-9c78-4cb9-9ccf-f9e6563e8ca6" >
+		<scheduler doc:name="Scheduler" doc:id="f5e690c6-6f77-4063-9aad-d24e252a9caf" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="1" timeUnit="HOURS"/>
+			</scheduling-strategy>
+		</scheduler>
+		<logger level="INFO" doc:name="Logger" doc:id="39a25814-0990-43ff-be2f-cf56841704bd" message="Starting Flow"/>
+		<db:select doc:name="Select" doc:id="74414dcb-8f29-41d7-9c77-b68f021b4e4a" config-ref="crompco_sales_source">
+			<db:sql ><![CDATA[SELECT * FROM service.invoice]]></db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="2cacf2ab-e97b-4d2a-a84e-9dbb73f5f869" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+[payload]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<snowflake:bulk-insert doc:name="Bulk insert" doc:id="80c946ff-7b28-4e03-a99e-29932181c9c0" config-ref="crompco_snowflake">
+			<snowflake:sql ><![CDATA[INSERT INTO CROMPCO_DEV.CROMPCO_STAGE.STSAL_INVOICE(invoice_id,entity_id,invoice_number,customer_work_number,invoice_notes,invoice_template_id,customer_contact_id,location_id,file_id,invoice_date,invoice_total,invoice_sub_total,sales_tax,published,closed,create_by,created_at,updated_at,deleted_at)
+VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice_notes, :invoice_template_id, :customer_contact_id, :location_id, :file_id, :invoice_date, :invoice_total, :invoice_sub_total, :sales_tax, :published, :closed, :create_by, :created_at, :updated_at, :deleted_at)]]></snowflake:sql>
+		</snowflake:bulk-insert>
+		<logger level="INFO" doc:name="Logger" doc:id="abf4b0b1-e4d7-4ebc-99eb-ced75de44f75" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="da5d4b8d-4fa0-47df-a01b-1156b92fee35" message="Completed Successfully"/>
+	</flow>
+</mule>
