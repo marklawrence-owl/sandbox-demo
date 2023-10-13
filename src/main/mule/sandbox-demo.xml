@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
-	<flow name="sandbox-demoFlow" doc:id="ecaa91e7-9c78-4cb9-9ccf-f9e6563e8ca6" >
+<!-- [STUDIO:"sandbox-demoFlow"]	<flow name="sandbox-demoFlow" doc:id="ecaa91e7-9c78-4cb9-9ccf-f9e6563e8ca6" >
 		<scheduler doc:name="Scheduler" doc:id="f5e690c6-6f77-4063-9aad-d24e252a9caf" >
 			<scheduling-strategy >
 				<fixed-frequency frequency="1" timeUnit="HOURS"/>
@@ -14,21 +14,111 @@ http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mul
 		</scheduler>
 		<logger level="INFO" doc:name="Logger" doc:id="39a25814-0990-43ff-be2f-cf56841704bd" message="Starting Flow"/>
 		<db:select doc:name="Select" doc:id="74414dcb-8f29-41d7-9c77-b68f021b4e4a" config-ref="crompco_sales_source">
-			<db:sql ><![CDATA[SELECT * FROM service.invoice]]></db:sql>
+			<db:sql ><![CDATA[SELECT * FROM service.invoice&#93;&#93;></db:sql>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="2cacf2ab-e97b-4d2a-a84e-9dbb73f5f869" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/java
----
-[payload]]]></ee:set-payload>
+&#45;&#45;-
+[payload&#93;&#93;&#93;></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<snowflake:bulk-insert doc:name="Bulk insert" doc:id="80c946ff-7b28-4e03-a99e-29932181c9c0" config-ref="crompco_snowflake">
 			<snowflake:sql ><![CDATA[INSERT INTO CROMPCO_DEV.CROMPCO_STAGE.STSAL_INVOICE(invoice_id,entity_id,invoice_number,customer_work_number,invoice_notes,invoice_template_id,customer_contact_id,location_id,file_id,invoice_date,invoice_total,invoice_sub_total,sales_tax,published,closed,create_by,created_at,updated_at,deleted_at)
-VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice_notes, :invoice_template_id, :customer_contact_id, :location_id, :file_id, :invoice_date, :invoice_total, :invoice_sub_total, :sales_tax, :published, :closed, :create_by, :created_at, :updated_at, :deleted_at)]]></snowflake:sql>
+VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice_notes, :invoice_template_id, :customer_contact_id, :location_id, :file_id, :invoice_date, :invoice_total, :invoice_sub_total, :sales_tax, :published, :closed, :create_by, :created_at, :updated_at, :deleted_at)&#93;&#93;></snowflake:sql>
 		</snowflake:bulk-insert>
-		<logger level="INFO" doc:name="Logger" doc:id="abf4b0b1-e4d7-4ebc-99eb-ced75de44f75" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="abf4b0b1-e4d7-4ebc-99eb-ced75de44f75" message="#[payload&#93;"/>
 		<logger level="INFO" doc:name="Logger" doc:id="da5d4b8d-4fa0-47df-a01b-1156b92fee35" message="Completed Successfully"/>
+	</flow> [STUDIO] -->
+<!-- [STUDIO:"FINANCIAL-LARSON-OEI-GL00100"]	<flow name="FINANCIAL-LARSON-OEI-GL00100" doc:id="f2a50239-c174-4e6b-b612-4bbd8054d4a4" >
+		<scheduler doc:name="Daily" doc:id="e31a06c6-eed8-421d-ade0-ec5617882e53" >
+			<scheduling-strategy >
+				<fixed-frequency timeUnit="MINUTES" />
+			</scheduling-strategy>
+		</scheduler>
+		<try doc:name="Try" doc:id="39bb2032-8d0d-49cb-a265-c0f346b63572" >
+			<db:select doc:name="Larson_Source" doc:id="600a3954-56cf-44ed-8ca5-76fb5428cb82" config-ref="larson_source" >
+				<db:sql ><![CDATA[select ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTALIAS, MNACSGMT, ACCTTYPE, ACTDESCR,
+                     PSTNGTYP, ACCATNUM, ACTIVE, TPCLBLNC, DECPLACS, FXDORVAR, BALFRCLC, DSPLKUPS, CNVRMTHD, HSTRCLRT,
+                     NOTEINDX, CREATDDT, MODIFDT, USERDEF1, USERDEF2, POSTSLSIN, POSTIVIN, POSTPURCHIN, POSTPRIN,
+                     ADJINFL, INFLAREV, INFLAEQU, ACCTENTR, USRDEFS1, USRDEFS2, CLEAR_BALANCE, WORKFLOW_STATUS,
+                     DEX_ROW_TS, DEX_ROW_ID from OEI.dbo.GL00100;&#93;&#93;></db:sql>
+			</db:select>
+			<ee:transform doc:name="Source to Stage Conversion" doc:id="fda01196-f842-4f19-9093-75fb35544b5b" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="ea3c2d54-a262-450a-88bd-e19c4c4ed1ca" config-ref="larson_snowflake" >
+				<snowflake:sql ><![CDATA[insert into STGFIN_OEI_GL00100 (ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTALIAS, MNACSGMT, ACCTTYPE,
+                                ACTDESCR, PSTNGTYP, ACCATNUM, ACTIVE, TPCLBLNC, DECPLACS, FXDORVAR, BALFRCLC, DSPLKUPS,
+                                CNVRMTHD, HSTRCLRT, NOTEINDX, CREATDDT, MODIFDT, USERDEF1, USERDEF2, POSTSLSIN,
+                                POSTIVIN, POSTPURCHIN, POSTPRIN, ADJINFL, INFLAREV, INFLAEQU, ACCTENTR, USRDEFS1,
+                                USRDEFS2, CLEAR_BALANCE, WORKFLOW_STATUS, DEX_ROW_TS, DEX_ROW_ID)
+VALUES(:ACTINDX, :ACTNUMBR_1, :ACTNUMBR_2, :ACTNUMBR_3, :ACTNUMBR_4, :ACTALIAS, :MNACSGMT, :ACCTTYPE,
+                                :ACTDESCR, :PSTNGTYP, :ACCATNUM, :ACTIVE, :TPCLBLNC, :DECPLACS, :FXDORVAR, :BALFRCLC, :DSPLKUPS,
+                                :CNVRMTHD, :HSTRCLRT, :NOTEINDX, :CREATDDT, :MODIFDT, :USERDEF1, :USERDEF2, :POSTSLSIN,
+                                :POSTIVIN, :POSTPURCHIN, :POSTPRIN, :ADJINFL, :INFLAREV, :INFLAEQU, :ACCTENTR, :USRDEFS1,
+                                :USRDEFS2, :CLEAR_BALANCE, :WORKFLOW_STATUS, :DEX_ROW_TS, :DEX_ROW_ID)&#93;&#93;></snowflake:sql>
+			</snowflake:bulk-insert>
+			<ee:transform doc:name="Stage to Raw Conversion" doc:id="72753c87-7740-4fbb-9524-8b56214f0f18" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:execute-script doc:name="Truncate and Load OEI_GL00100 to Raw" doc:id="782ef989-b9b1-499b-a628-82e76c3e6a94" config-ref="larson_snowflake" file="sql/Larson_OEIGL00100.sql" />
+			<logger level="INFO" doc:name="Load success message" doc:id="914bbfa2-7cff-4629-b71e-09c85d9e722e" message="FINANCIAL-LARSON-OEI-GL00100 Loaded Successfully" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="4aab7a4d-29ba-4e0e-93e5-0588122f9eb4" >
+					<logger level="ERROR" doc:name="Error message" doc:id="84757f01-7fca-47ca-a399-657e81a6fbcd" message="FINANCIAL-LARSON-OEI-GL00100 has an Error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</flow> [STUDIO] -->
+	<flow name="FINANCIAL-LARSON-OEI-GL00105" doc:id="54a59075-519f-485d-a797-e1ac0580359b" >
+		<scheduler doc:name="Daily" doc:id="ae69aca8-020f-4904-ae88-d2cff7623677" >
+			<scheduling-strategy >
+				<fixed-frequency timeUnit="MINUTES" />
+			</scheduling-strategy>
+		</scheduler>
+		<try doc:name="Try" doc:id="7162ceca-c0d9-448e-8be5-42acd77de133" >
+			<db:select doc:name="Larson_Source" doc:id="f24d738c-19a9-42fe-9afc-91300e5b14cf" config-ref="larson_source" >
+				<db:sql ><![CDATA[select ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTNUMST, DEX_ROW_ID from OEI.dbo.GL00105;]]></db:sql>
+			</db:select>
+			<ee:transform doc:name="Source to Stage Conversion" doc:id="c2774dd9-f2c0-4c76-875b-4a84566806a8" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="ea0b998a-f155-484e-bc58-ab367346794f" config-ref="larson_snowflake" >
+				<snowflake:sql ><![CDATA[insert into STGFIN_OEI_GL00105 (ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTNUMST, DEX_ROW_ID)
+VALUES(:ACTINDX, :ACTNUMBR_1, :ACTNUMBR_2, :ACTNUMBR_3, :ACTNUMBR_4, :ACTNUMST, :DEX_ROW_ID)]]></snowflake:sql>
+			</snowflake:bulk-insert>
+			<ee:transform doc:name="Stage to Raw Conversion" doc:id="f02d595d-1d8c-4dcb-bf9b-7cd47db45a81" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:execute-script doc:name="Truncate and Load OEI_GL00105 to Raw" doc:id="a7b561ee-6144-4573-9afa-e72f43f549b5" config-ref="larson_snowflake" file="sql/Larson_OEIGL00105.sql" />
+			<logger level="INFO" doc:name="Load success message" doc:id="5f44d2c8-e8ee-41d4-a3e6-d935dd1cdefd" message="FINANCIAL-LARSON-OEI-GL0015 Loaded Successfully" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="14e442d3-7f34-4c7d-901d-bad571d90e04" >
+					<logger level="ERROR" doc:name="Error message" doc:id="651c751f-6bc0-4796-9ef4-4fabd973e899" message="FINANCIAL-LARSON-OEI-GL0015 has an Error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
 	</flow>
 </mule>
