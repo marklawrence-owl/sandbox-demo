@@ -13,6 +13,32 @@ larson:
   snowflake_password: "![57BoO29DSgKUhmlQ6SxR8w==]"
   role: "DEV_INGESTION_ROLE"
 
+crompco:
+  url: "jdbc:pervasive://172.16.1.36:1583/CROMPCOLLC"
+  driver: "com.pervasive.jdbc.v2.Driver"
+  user: "Peachtree"
+  password: "![w9GhxeQ4iSU=]"
+  account: "pi75377.central-us.azure"
+  warehouse: "DEV_INGESTION_WH"
+  database: "CROMPCO_DEV"
+  schema: "CROMPCO_STAGE"
+  snowflake_username: "HARIVAMSI_PULLIPUDI"
+  snowflake_password: "![GO0BX/UmhVXmGpCWkTYnQA==]"
+  role: "DEV_INGESTION_ROLE"
+
+crompco_sales:
+  host: "vault-service.crquhfau4stz.us-east-1.rds.amazonaws.com"
+  user: "owl_datawarehouse"
+  password: "![THTMSzJsZr48Cu0gek5rYmtBhIW7ugcu]"
+  account: "pi75377.central-us.azure"
+  warehouse: "DEV_INGESTION_WH"
+  database: "CROMPCO_DEV"
+  schema: "CROMPCO_STAGE"
+  snowflake_username: "HARIVAMSI_PULLIPUDI"
+  snowflake_password: "![GO0BX/UmhVXmGpCWkTYnQA==]"
+  role: "DEV_INGESTION_ROLE"
+  
+
 cron:
   Expression: "0 0 1 1/1 * ? *"
   Expression_Financial_day: "0 0 1 1/1 * ? *"

@@ -1,24 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+<mule
+	xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
 	xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
-	xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
 	xmlns="http://www.mulesoft.org/schema/mule/core"
-	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
 http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
-	<configuration-properties doc:name="Configuration properties" doc:id="08099691-3e90-4ddc-a377-8bc1c24398a2" file="config.yaml" />
-	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="3fa08474-19c1-4926-8288-ccaf4364a95d" file="config.yaml" key="${secretkey}">
-		<secure-properties:encrypt algorithm="Blowfish" />
-	</secure-properties:config>
-	<global-property doc:name="Global Property" doc:id="707868d7-5635-4666-951f-92f58a50919a" name="secretkey" value="owlcbelarsonwildco123456"/>
-	<db:config name="crompco_sales_source" doc:name="Database Config" doc:id="422c2e32-c616-4505-8fd4-b8cce3205479" >
-		<db:my-sql-connection host="${crompco_sales.host}" port="3306" user="${crompco_sales.user}" password="${secure::crompco_sales.password}"/>
+	<db:config name="larson_source"
+		doc:name="Database Config"
+		doc:id="313798d6-8976-450a-8a8a-db47b654c8f1">
+		<db:mssql-connection host="${larson.host}" user="${larson.user}" password="${secure::larson.password}" databaseName="BKL"/>
+
 	</db:config>
-	<snowflake:snowflake-config name="crompco_snowflake" doc:name="Snowflake Config" doc:id="e7942028-7441-41f5-a62c-c88654f70389" >
-		<snowflake:snowflake-connection accountName="${crompco_sales.account}" warehouse="${crompco_sales.warehouse}" database="${crompco_sales.database}" schema="${crompco_sales.schema}" user="${crompco_sales.snowflake_username}" password="${secure::crompco_sales.snowflake_password}" role="${crompco_sales.role}"/>
+	<snowflake:snowflake-config
+		name="larson_snowflake" doc:name="Snowflake Config"
+		doc:id="1ac1d770-0614-4f18-8698-f97595a70976">
+		<snowflake:snowflake-connection
+			accountName="${larson.account_name}" warehouse="${larson.warehouse}"
+			database="${larson.database}" schema="${larson.schema1}"
+			user="${larson.snowflake_username}"
+			password="${secure::larson.snowflake_password}"
+			role="${larson.role} " />
 	</snowflake:snowflake-config>
+	<configuration-properties
+		doc:name="Configuration properties"
+		doc:id="08099691-3e90-4ddc-a377-8bc1c24398a2"
+		file="properties\test.config.yaml" />
+	<secure-properties:config
+		name="Secure_Properties_Config" doc:name="Secure Properties Config"
+		doc:id="3fa08474-19c1-4926-8288-ccaf4364a95d"
+		file="properties\test.config.yaml" key="${secretkey}" >
+	</secure-properties:config>
+	<global-property doc:name="Global Property"
+		doc:id="707868d7-5635-4666-951f-92f58a50919a" name="secretkey"
+		value="owlcbelarsonwildco123456" />
 
 </mule>
