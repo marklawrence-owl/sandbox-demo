@@ -31,7 +31,7 @@ VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice
 		<logger level="INFO" doc:name="Logger" doc:id="abf4b0b1-e4d7-4ebc-99eb-ced75de44f75" message="#[payload&#93;"/>
 		<logger level="INFO" doc:name="Logger" doc:id="da5d4b8d-4fa0-47df-a01b-1156b92fee35" message="Completed Successfully"/>
 	</flow> [STUDIO] -->
-	<flow name="FINANCIAL-LARSON-NMA-GL00105" doc:id="67e3dbe1-a5bb-4bd6-9408-81dc1f2eba56" >
+<!-- [STUDIO:"FINANCIAL-LARSON-NMA-GL00105"]	<flow name="FINANCIAL-LARSON-NMA-GL00105" doc:id="67e3dbe1-a5bb-4bd6-9408-81dc1f2eba56" >
 		<scheduler doc:name="Daily" doc:id="154083d3-a579-407e-a909-ed1b6d4c6873" >
 			<scheduling-strategy >
 				<fixed-frequency timeUnit="HOURS" />
@@ -39,26 +39,26 @@ VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice
 		</scheduler>
 		<try doc:name="Try" doc:id="c02b35c4-42a7-4764-95a0-5988688842aa" >
 			<db:select doc:name="LARSON_source" doc:id="a21fde54-e860-4801-bd75-fab20fb2731a" config-ref="larson_source" >
-				<db:sql ><![CDATA[select * from NMA.dbo.GL00105​;]]></db:sql>
+				<db:sql ><![CDATA[select * from NMA.dbo.GL00105​;&#93;&#93;></db:sql>
 			</db:select>
 			<ee:transform doc:name="Source to Stage Conversion" doc:id="9edeccfb-94c7-4b04-af40-df35d1453795" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
----
-payload]]></ee:set-payload>
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
 				</ee:message>
 			</ee:transform>
 			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="50cc37df-9b82-41a1-a83c-6ef0a721ed81" config-ref="larson_snowflake" >
 				<snowflake:sql ><![CDATA[insert into STGFIN_NMA_GL00105 (ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTNUMST, DEX_ROW_ID)
-VALUES(:ACTINDX, :ACTNUMBR_1, :ACTNUMBR_2, :ACTNUMBR_3, :ACTNUMBR_4, :ACTNUMST, :DEX_ROW_ID)]]></snowflake:sql>
+VALUES(:ACTINDX, :ACTNUMBR_1, :ACTNUMBR_2, :ACTNUMBR_3, :ACTNUMBR_4, :ACTNUMST, :DEX_ROW_ID)&#93;&#93;></snowflake:sql>
 			</snowflake:bulk-insert>
 			<ee:transform doc:name="Stage to Raw Conversion" doc:id="f7f4cd97-9ca6-4858-8733-174fb65a5bc4" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
----
-payload]]></ee:set-payload>
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
 				</ee:message>
 			</ee:transform>
 			<snowflake:execute-script doc:name="Truncate and Load Stage to Raw" doc:id="93f97de1-bd48-4c80-a69d-7292afa092a1" config-ref="larson_snowflake" file="sql/FIN_LARSON_NMA_GL00100.sql" />
@@ -66,6 +66,47 @@ payload]]></ee:set-payload>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="09ed673e-6093-4d06-9aee-98b5374c0194" >
 					<logger level="ERROR" doc:name="Error Message" doc:id="7dfa439f-5cc6-40a1-a4f3-e75bbea532ff" message="FINANCIAL-LARSON-NMA-GL00105 has an error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</flow> [STUDIO] -->
+	<flow name="FINANCIAL-LARSON-NMA-SY40100" doc:id="ef34696a-a618-4a9f-8e38-6e97495d35cc" >
+		<scheduler doc:name="Daily" doc:id="c83e0436-67c7-4b58-ba01-1d38e8136ab5" >
+			<scheduling-strategy >
+				<fixed-frequency timeUnit="HOURS" />
+			</scheduling-strategy>
+		</scheduler>
+		<try doc:name="Try" doc:id="cdf72da4-9e13-497d-8b88-40d39e6b9fd6" >
+			<db:select doc:name="LARSON_source" doc:id="5b89c78b-b297-4129-b5cc-674c5de51055" config-ref="larson_source" >
+				<db:sql ><![CDATA[select * from NMA.dbo.SY40100​;]]></db:sql>
+			</db:select>
+			<ee:transform doc:name="Source to Stage Conversion" doc:id="e6386298-5907-4097-8fef-ca5373ceae8e" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="ec9661ba-9504-4ff3-b9e3-35ae82344fb1" config-ref="larson_snowflake" >
+				<snowflake:sql ><![CDATA[insert into STGFIN_NMA_SY40100 (CLOSED, SERIES, ODESCTN, FORIGIN, PERIODID, PERIODDT, PERNAME, PSERIES_1, PSERIES_2,
+                                PSERIES_3, PSERIES_4, PSERIES_5, PSERIES_6, YEAR1, PERDENDT, DEX_ROW_TS, DEX_ROW_ID)
+VALUES(:CLOSED, :SERIES, :ODESCTN, :FORIGIN, :PERIODID, :PERIODDT, :PERNAME, :PSERIES_1, :PSERIES_2,
+                                :PSERIES_3, :PSERIES_4, :PSERIES_5, :PSERIES_6, :YEAR1, :PERDENDT, :DEX_ROW_TS, :DEX_ROW_ID)]]></snowflake:sql>
+			</snowflake:bulk-insert>
+			<ee:transform doc:name="Stage to Raw Conversion" doc:id="cc1c7721-eb9a-42dc-b14a-9af937962af4" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:execute-script doc:name="Truncate and Load Stage to Raw" doc:id="e64a29f9-0de3-4f4c-b26e-ec074517c418" config-ref="larson_snowflake" file="sql/FIN_LARSON_NMA_SY40100.sql" />
+			<logger level="INFO" doc:name="Load Success Message" doc:id="255bc240-8bca-4e7b-8e5a-8c8d41d4c229" message="FINANCIAL-LARSON-NMA-SY40100 Loaded Successfully" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c5f62a46-a793-46ce-b252-9c7c3cb194a4" >
+					<logger level="ERROR" doc:name="Error Message" doc:id="43ebf247-9e77-4439-b623-0051e34b7441" message="FINANCIAL-LARSON-NMA-SY40100 has an error" />
 				</on-error-propagate>
 			</error-handler>
 		</try>
