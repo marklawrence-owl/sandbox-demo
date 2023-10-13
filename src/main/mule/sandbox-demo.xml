@@ -82,7 +82,7 @@ payload&#93;&#93;></ee:set-payload>
 			</error-handler>
 		</try>
 	</flow> [STUDIO] -->
-	<flow name="FINANCIAL-LARSON-OEI-GL00105" doc:id="54a59075-519f-485d-a797-e1ac0580359b" >
+<!-- [STUDIO:"FINANCIAL-LARSON-OEI-GL00105"]	<flow name="FINANCIAL-LARSON-OEI-GL00105" doc:id="54a59075-519f-485d-a797-e1ac0580359b" >
 		<scheduler doc:name="Daily" doc:id="ae69aca8-020f-4904-ae88-d2cff7623677" >
 			<scheduling-strategy >
 				<fixed-frequency timeUnit="MINUTES" />
@@ -90,26 +90,26 @@ payload&#93;&#93;></ee:set-payload>
 		</scheduler>
 		<try doc:name="Try" doc:id="7162ceca-c0d9-448e-8be5-42acd77de133" >
 			<db:select doc:name="Larson_Source" doc:id="f24d738c-19a9-42fe-9afc-91300e5b14cf" config-ref="larson_source" >
-				<db:sql ><![CDATA[select ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTNUMST, DEX_ROW_ID from OEI.dbo.GL00105;]]></db:sql>
+				<db:sql ><![CDATA[select ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTNUMST, DEX_ROW_ID from OEI.dbo.GL00105;&#93;&#93;></db:sql>
 			</db:select>
 			<ee:transform doc:name="Source to Stage Conversion" doc:id="c2774dd9-f2c0-4c76-875b-4a84566806a8" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
----
-payload]]></ee:set-payload>
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
 				</ee:message>
 			</ee:transform>
 			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="ea0b998a-f155-484e-bc58-ab367346794f" config-ref="larson_snowflake" >
 				<snowflake:sql ><![CDATA[insert into STGFIN_OEI_GL00105 (ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTNUMST, DEX_ROW_ID)
-VALUES(:ACTINDX, :ACTNUMBR_1, :ACTNUMBR_2, :ACTNUMBR_3, :ACTNUMBR_4, :ACTNUMST, :DEX_ROW_ID)]]></snowflake:sql>
+VALUES(:ACTINDX, :ACTNUMBR_1, :ACTNUMBR_2, :ACTNUMBR_3, :ACTNUMBR_4, :ACTNUMST, :DEX_ROW_ID)&#93;&#93;></snowflake:sql>
 			</snowflake:bulk-insert>
 			<ee:transform doc:name="Stage to Raw Conversion" doc:id="f02d595d-1d8c-4dcb-bf9b-7cd47db45a81" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
----
-payload]]></ee:set-payload>
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
 				</ee:message>
 			</ee:transform>
 			<snowflake:execute-script doc:name="Truncate and Load OEI_GL00105 to Raw" doc:id="a7b561ee-6144-4573-9afa-e72f43f549b5" config-ref="larson_snowflake" file="sql/Larson_OEIGL00105.sql" />
@@ -117,6 +117,48 @@ payload]]></ee:set-payload>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="14e442d3-7f34-4c7d-901d-bad571d90e04" >
 					<logger level="ERROR" doc:name="Error message" doc:id="651c751f-6bc0-4796-9ef4-4fabd973e899" message="FINANCIAL-LARSON-OEI-GL0015 has an Error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</flow> [STUDIO] -->
+	<flow name="FINANCIAL-LARSON-OEI-SY40100" doc:id="02d6489b-706f-4e1e-9be8-db9fdb39a07e" >
+		<scheduler doc:name="Daily" doc:id="49fd57b1-71c3-4d8d-81eb-c98e877c92e7" >
+			<scheduling-strategy >
+				<fixed-frequency timeUnit="MINUTES" />
+			</scheduling-strategy>
+		</scheduler>
+		<try doc:name="Try" doc:id="07fca0b6-c831-4a7b-8243-b9abca52d829" >
+			<db:select doc:name="Larson_Source" doc:id="370cc045-4a22-4d49-98ba-dd03dd276856" config-ref="larson_source" >
+				<db:sql ><![CDATA[select CLOSED, SERIES, ODESCTN, FORIGIN, PERIODID, PERIODDT, PERNAME, PSERIES_1, PSERIES_2, PSERIES_3,
+                     PSERIES_4, PSERIES_5, PSERIES_6, YEAR1, PERDENDT, DEX_ROW_TS, DEX_ROW_ID from OEI.dbo.SY40100;]]></db:sql>
+			</db:select>
+			<ee:transform doc:name="Source to Stage Conversion" doc:id="281edcfc-c9d8-47f1-ad32-b7c2cfc32735" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="a23a8697-6ee5-499d-82cd-ff62840f2ffd" config-ref="larson_snowflake" >
+				<snowflake:sql ><![CDATA[insert into STGFIN_OEI_SY40100 (CLOSED, SERIES, ODESCTN, FORIGIN, PERIODID, PERIODDT, PERNAME, PSERIES_1, PSERIES_2, PSERIES_3,
+                     PSERIES_4, PSERIES_5, PSERIES_6, YEAR1, PERDENDT, DEX_ROW_TS, DEX_ROW_ID)
+VALUES(:CLOSED, :SERIES, :ODESCTN, :FORIGIN, :PERIODID, :PERIODDT, :PERNAME, :PSERIES_1, :PSERIES_2, :PSERIES_3,
+                     :PSERIES_4, :PSERIES_5, :PSERIES_6, :YEAR1, :PERDENDT, :DEX_ROW_TS, :DEX_ROW_ID)]]></snowflake:sql>
+			</snowflake:bulk-insert>
+			<ee:transform doc:name="Stage to Raw Conversion" doc:id="56b44604-cd9d-41de-9ab1-5cfcd87e4320" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:execute-script doc:name="Truncate and Load OEI_SY40100 to Raw" doc:id="b73f4580-727e-44b9-abda-90645b7c5e27" config-ref="larson_snowflake" file="sql/Larson_OEISY40100.sql" />
+			<logger level="INFO" doc:name="Load success message" doc:id="f2ad205b-d1df-4f78-95e7-04a9d029f57f" message="FINANCIAL-LARSON-OEI-SY40100 Loaded Successfully" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="92cf58b4-7d44-4182-b894-31f4bc223c70" >
+					<logger level="ERROR" doc:name="Error message" doc:id="b686d046-36af-4c97-b9cc-fc6efa79ddc5" message="FINANCIAL-LARSON-OEI-SY40100 has an Error" />
 				</on-error-propagate>
 			</error-handler>
 		</try>
