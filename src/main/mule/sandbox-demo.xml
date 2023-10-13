@@ -83,7 +83,7 @@ payload&#93;&#93;></ee:set-payload>
 			</error-handler>
 		</try>
 	</flow> [STUDIO] -->
-	<flow name="FINANCIAL-LARSON-BKL-GL00105" doc:id="f4cd6f0b-0e7d-4c5a-9e27-8a4c4222b01d" >
+<!-- [STUDIO:"FINANCIAL-LARSON-BKL-GL00105"]	<flow name="FINANCIAL-LARSON-BKL-GL00105" doc:id="f4cd6f0b-0e7d-4c5a-9e27-8a4c4222b01d" >
 		<scheduler doc:name="Daily" doc:id="e69563cc-d60b-45eb-8057-0eaa58979bb8" >
 			<scheduling-strategy >
 				<fixed-frequency timeUnit="MINUTES" />
@@ -91,27 +91,27 @@ payload&#93;&#93;></ee:set-payload>
 		</scheduler>
 		<try doc:name="Try" doc:id="d42b367c-4567-42d2-84ee-096932bf59e4" >
 			<db:select doc:name="Larson_Source" doc:id="cc88c043-a398-47c6-9376-aef6e111297c" config-ref="larson_source" >
-				<db:sql ><![CDATA[select * from BKL.dbo.GL00105]]></db:sql>
+				<db:sql ><![CDATA[select * from BKL.dbo.GL00105&#93;&#93;></db:sql>
 			</db:select>
 			<ee:transform doc:name="Source to Stage Conversion" doc:id="24150448-68b1-41dd-8011-694d49d379be" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
----
-payload]]></ee:set-payload>
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
 				</ee:message>
 			</ee:transform>
 			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="a22fc23c-4e0b-4a98-ba65-0a297b6f657f" config-ref="larson_snowflake" >
 				<snowflake:sql ><![CDATA[INSERT INTO STGFIN_BKLGL00105(ACTINDX, ACTNUMBR_1, ACTNUMBR_2, ACTNUMBR_3, ACTNUMBR_4, ACTNUMST, DEX_ROW_ID)
 VALUES(:ACTINDX, :ACTNUMBR_1, :ACTNUMBR_2, :ACTNUMBR_3, :ACTNUMBR_4, :ACTNUMST, :DEX_ROW_ID)
-]]></snowflake:sql>
+&#93;&#93;></snowflake:sql>
 			</snowflake:bulk-insert>
 			<ee:transform doc:name="Stage to Raw Conversion" doc:id="971d7c35-8e2d-490e-b179-9b2aec9d2b26" >
 				<ee:message >
 					<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
----
-payload]]></ee:set-payload>
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
 				</ee:message>
 			</ee:transform>
 			<snowflake:execute-script doc:name="Truncate and Load BKL_GL00105 to Raw" doc:id="640e9077-3720-4578-bb27-5475c4f1ba26" config-ref="larson_snowflake" file="sql/Larson_BKLGL00105.sql" />
@@ -119,6 +119,48 @@ payload]]></ee:set-payload>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="3b073cbc-4522-44d8-9051-754ea04956db" >
 					<logger level="ERROR" doc:name="Error Message" doc:id="0d68a173-cc6c-497f-a3be-80eea0a08992" message="FINANCIAL-LARSON-BKL-GL00105 has an error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</flow> [STUDIO] -->
+	<flow name="FINANCIAL-LARSON-BKL-SY40100" doc:id="6257e58c-3c30-4d37-993e-2fce16f4e050" >
+		<scheduler doc:name="Daily" doc:id="85770e80-5b1e-450a-a268-e6c5bd5fd02b" >
+			<scheduling-strategy >
+				<fixed-frequency timeUnit="MINUTES" />
+			</scheduling-strategy>
+		</scheduler>
+		<try doc:name="Try" doc:id="562fd77b-c6bc-44a1-adb7-b7467ce17a49" >
+			<db:select doc:name="Larson_Source" doc:id="1731799b-2281-4603-ad46-86dc74f31c7b" config-ref="larson_source" >
+				<db:sql ><![CDATA[select * from BKL.dbo.SY40100]]></db:sql>
+			</db:select>
+			<ee:transform doc:name="Source to Stage Conversion" doc:id="e37a773d-ef89-4dfe-bf81-d1a5e94d634e" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:bulk-insert doc:name="Loading Data from Source to Stage" doc:id="94616b6f-57ff-4a68-850e-d15b6e8a5916" config-ref="larson_snowflake" >
+				<snowflake:sql ><![CDATA[INSERT INTO STGFIN_BKLSY40100(CLOSED, SERIES, ODESCTN, FORIGIN, PERIODID, PERIODDT, PERNAME, PSERIES_1, PSERIES_2, PSERIES_3,
+                     PSERIES_4, PSERIES_5, PSERIES_6, YEAR1, PERDENDT, DEX_ROW_TS, DEX_ROW_ID)
+VALUES(:CLOSED, :SERIES, :ODESCTN, :FORIGIN, :PERIODID, :PERIODDT, :PERNAME, :PSERIES_1, :PSERIES_2, :PSERIES_3,
+                     :PSERIES_4, :PSERIES_5, :PSERIES_6, :YEAR1, :PERDENDT, :DEX_ROW_TS, :DEX_ROW_ID)
+]]></snowflake:sql>
+			</snowflake:bulk-insert>
+			<ee:transform doc:name="Stage to Raw Conversion" doc:id="5b6f0199-44ea-423b-bb0b-b733bd708eec" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:execute-script doc:name="Truncate and Load BKL_SY40100 to Raw" doc:id="f1241df5-4ea1-4c22-8d43-2f832f8cce54" config-ref="larson_snowflake" file="sql/Larson_BKLSY40100.sql" />
+			<logger level="INFO" doc:name="Load success message" doc:id="72e9bc84-67f4-41b6-9d50-ae7a8d7106a4" message="FINANCIAL-LARSON-BKL-SY40100 Loaded Successfully" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="94c58bc9-a766-4455-bb16-17c868d70e47" >
+					<logger level="ERROR" doc:name="Error Message" doc:id="aa653934-407e-47e5-9601-9fd8b31049b0" message="FINANCIAL-LARSON-BKL-SY40100 has an error" />
 				</on-error-propagate>
 			</error-handler>
 		</try>
