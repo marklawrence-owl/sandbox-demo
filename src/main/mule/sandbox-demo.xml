@@ -19,7 +19,7 @@ http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mul
 		<ee:transform doc:name="Transform Message" doc:id="2cacf2ab-e97b-4d2a-a84e-9dbb73f5f869" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
-output application/java
+output application/json
 ---
 payload]]></ee:set-payload>
 			</ee:message>
@@ -31,7 +31,15 @@ payload]]></ee:set-payload>
                            DELETED_AT)
 VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice_notes, :invoice_template_id, :customer_contact_id, :location_id, :file_id, :invoice_date, :invoice_total, :invoice_sub_total, :sales_tax, :published, :closed, :create_by, :created_at, :updated_at, :deleted_at)]]></snowflake:sql>
 		</snowflake:bulk-insert>
-		<logger level="INFO" doc:name="Logger" doc:id="abf4b0b1-e4d7-4ebc-99eb-ced75de44f75" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="9a72fde7-538c-4086-ba7b-d6e00db543b9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<snowflake:execute-script doc:name="Execute script" doc:id="4471845d-5fcc-4046-a9f4-1d329af431a0" config-ref="crompco_snowflake" file="sql/SALES_CROMPCO_INVOICE.sql"/>
 		<logger level="INFO" doc:name="Logger" doc:id="da5d4b8d-4fa0-47df-a01b-1156b92fee35" message="Completed Successfully"/>
 	</flow>
 </mule>
