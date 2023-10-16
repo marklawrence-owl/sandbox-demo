@@ -6,7 +6,7 @@
 http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
-	<flow name="sandbox-demoFlow" doc:id="ecaa91e7-9c78-4cb9-9ccf-f9e6563e8ca6" >
+<!-- [STUDIO:"sandbox-demoFlow"]	<flow name="sandbox-demoFlow" doc:id="ecaa91e7-9c78-4cb9-9ccf-f9e6563e8ca6" >
 		<scheduler doc:name="Scheduler" doc:id="f5e690c6-6f77-4063-9aad-d24e252a9caf" >
 			<scheduling-strategy >
 				<fixed-frequency frequency="1" timeUnit="HOURS"/>
@@ -14,21 +14,93 @@ http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mul
 		</scheduler>
 		<logger level="INFO" doc:name="Logger" doc:id="39a25814-0990-43ff-be2f-cf56841704bd" message="Starting Flow"/>
 		<db:select doc:name="Select" doc:id="74414dcb-8f29-41d7-9c77-b68f021b4e4a" config-ref="crompco_sales_source">
-			<db:sql ><![CDATA[SELECT * FROM service.invoice]]></db:sql>
+			<db:sql ><![CDATA[SELECT * FROM service.invoice&#93;&#93;></db:sql>
 		</db:select>
 		<ee:transform doc:name="Transform Message" doc:id="2cacf2ab-e97b-4d2a-a84e-9dbb73f5f869" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/java
----
-[payload]]]></ee:set-payload>
+&#45;&#45;-
+[payload&#93;&#93;&#93;></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 		<snowflake:bulk-insert doc:name="Bulk insert" doc:id="80c946ff-7b28-4e03-a99e-29932181c9c0" config-ref="crompco_snowflake">
 			<snowflake:sql ><![CDATA[INSERT INTO CROMPCO_DEV.CROMPCO_STAGE.STSAL_INVOICE(invoice_id,entity_id,invoice_number,customer_work_number,invoice_notes,invoice_template_id,customer_contact_id,location_id,file_id,invoice_date,invoice_total,invoice_sub_total,sales_tax,published,closed,create_by,created_at,updated_at,deleted_at)
-VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice_notes, :invoice_template_id, :customer_contact_id, :location_id, :file_id, :invoice_date, :invoice_total, :invoice_sub_total, :sales_tax, :published, :closed, :create_by, :created_at, :updated_at, :deleted_at)]]></snowflake:sql>
+VALUES(:invoice_id, :entity_id, :invoice_number, :customer_work_number, :invoice_notes, :invoice_template_id, :customer_contact_id, :location_id, :file_id, :invoice_date, :invoice_total, :invoice_sub_total, :sales_tax, :published, :closed, :create_by, :created_at, :updated_at, :deleted_at)&#93;&#93;></snowflake:sql>
 		</snowflake:bulk-insert>
-		<logger level="INFO" doc:name="Logger" doc:id="abf4b0b1-e4d7-4ebc-99eb-ced75de44f75" message="#[payload]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="abf4b0b1-e4d7-4ebc-99eb-ced75de44f75" message="#[payload&#93;"/>
 		<logger level="INFO" doc:name="Logger" doc:id="da5d4b8d-4fa0-47df-a01b-1156b92fee35" message="Completed Successfully"/>
+	</flow> [STUDIO] -->
+	<flow name="FINANCIAL-WILDCO-PESDAT-CSFSC" doc:id="cb3df661-f97e-4889-819b-7ee5b507912b" >
+		<scheduler doc:name="Daily" doc:id="27a128bf-07f3-44e7-8ed5-d4cbbdfbb82d" >
+			<scheduling-strategy >
+				<cron expression="${cron.Expression_Financial_day}" timeZone="${cron.TimeZone}" />
+			</scheduling-strategy>
+		</scheduler>
+		<try doc:name="Try" doc:id="3390e0d5-f585-40c2-9bfa-2d1034e07b35" >
+			<db:select doc:name="Wildco_source" doc:id="e739ba43-814e-4995-998d-1510b7d90061" config-ref="wildco_source" >
+				<db:sql ><![CDATA[select * from PESDAT.dbo.CSFSC;]]></db:sql>
+			</db:select>
+			<ee:transform doc:name="source to stage conversion" doc:id="1b2b8f1b-d3c0-4072-89ed-a7ce68a4055a" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:bulk-insert doc:name="Loading data from Source to Stage" doc:id="9e6608ff-431d-4f67-997a-74307e29331d" config-ref="wildco_snowflake" >
+				<snowflake:bulk-input-parameters ><![CDATA[#[payload map ((item, index) ->{
+ACCTID: item.ACCTID,
+FSCSYR: item.FSCSYR,
+FSCSDSG: item.FSCSDSG,
+FSCSCURN: item.FSCSCURN,
+CURNTYPE: item.CURNTYPE,
+AUDTDATE: item.AUDTDATE,
+AUDTTIME: item.AUDTTIME,
+AUDTUSER: item.AUDTUSER,
+AUDTORG : item.AUDTORG,
+SWRVL: item.SWRVL,
+CODERVL: item.CODERVL,
+SCURNDEC: item.SCURNDEC,
+OPENBAL: item.OPENBAL,
+NETPERD1: item.NETPERD1,
+NETPERD2: item.NETPERD2,
+NETPERD3: item.NETPERD3,
+NETPERD4: item.NETPERD4,
+NETPERD5: item.NETPERD5,
+NETPERD6: item.NETPERD6,
+NETPERD7: item.NETPERD7,
+NETPERD8: item.NETPERD8,
+NETPERD9: item.NETPERD9,
+NETPERD10: item.NETPERD10,
+NETPERD11: item.NETPERD11,
+NETPERD12: item.NETPERD12,
+NETPERD13: item.NETPERD13,
+NETPERD14: item.NETPERD14,
+NETPERD15: item.NETPERD15,
+ACTIVITYSW: item.ACTIVITYSW,
+} )]]]></snowflake:bulk-input-parameters>
+				<snowflake:sql ><![CDATA[INSERT INTO STGFIN_WILDCOGLAFS(ACCTID,FSCSYR,FSCSDSG,FSCSCURN,CURNTYPE,AUDTDATE,AUDTTIME,AUDTUSER,AUDTORG,SWRVL,CODERVL,SCURNDEC,OPENBAL,NETPERD1,NETPERD2,NETPERD3,NETPERD4,
+NETPERD5,NETPERD6,NETPERD7,NETPERD8,NETPERD9,NETPERD10,NETPERD11,NETPERD12,NETPERD13,NETPERD14,NETPERD15,ACTIVITYSW)
+VALUES(:ACCTID,:FSCSYR,:FSCSDSG,:FSCSCURN,:CURNTYPE,:AUDTDATE,:AUDTTIME,:AUDTUSER,:AUDTORG,:SWRVL,:CODERVL,:SCURNDEC,:OPENBAL,:NETPERD1,:NETPERD2,:NETPERD3,:NETPERD4,
+:NETPERD5,:NETPERD6,:NETPERD7,:NETPERD8,:NETPERD9,:NETPERD10,:NETPERD11,:NETPERD12,:NETPERD13,:NETPERD14,:NETPERD15,:ACTIVITYSW)]]></snowflake:sql>
+			</snowflake:bulk-insert>
+			<ee:transform doc:name="Stage to raw conversion" doc:id="3b99d1b0-2af3-4b80-bff4-0f70111a5117" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<snowflake:execute-script doc:name="Truncate and load GLAFS to raw" doc:id="372e32b1-8c74-4fdb-aa56-e0c39d284733" config-ref="wildco_snowflake" file="sql/Wildco_GLAFS.sql" />
+			<logger level="INFO" doc:name="Load success message" doc:id="a031cb18-55b7-41dd-ad28-aa0c0a635ef1" message="FINANCIAL-WILDCO-PESDAT-CSFSC Loaded Sucessfully" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6843fa3e-0449-4ada-a8f9-99459d041c0e" >
+					<logger level="ERROR" doc:name="Error message" doc:id="4605359a-f8ad-4501-b7cf-040dbfc2de16" message="FINANCIAL-WILDCO-PESDAT-CSFSC has an Error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
 	</flow>
 </mule>

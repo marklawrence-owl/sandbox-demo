@@ -1,0 +1,28 @@
+wildco:
+  host: "192.168.0.13"
+  user: "OWLDataWarehouse"
+  password: "![VaiSwYcsDFXTJ/tYCdm+bA==]"
+  account: "pi75377.central-us.azure"
+  warehouse: "DEV_INGESTION_WH"
+  database: "WILDCO_DEV"
+  schema: "PESDAT_STAGE"
+  snowflake_username: "HARIVAMSI_PULLIPUDI"
+  snowflake_password: "![57BoO29DSgKUhmlQ6SxR8w==]"
+  role: "DEV_INGESTION_ROLE"
+
+cron:
+  Expression: "0 0 1 1/1 * ? *"
+  Expression_Financial_day: "0 0 1 1/1 * ? *"
+  Expression_Financial_week: "0 0 1 1/7 * ? *"
+  Expression_Financial_week_delay: "0 0 2 1/7 * ? *"
+  Expression_sales_day: "0 30 2 1/1 * ? *"
+  Expression_sales_week: "0 30 2 1/7 * ? *"
+  Expression_Sales_day_delay: "0 30 3 1/7 * ? *"
+  Expression_Sales_week_delay: "0 30 3 1/7 * ? *"
+  Expression_inventory_day: "0 0 4 1/1 * ? *"
+  Expression_inventory_week: "0 0 4 1/7 * ? *"
+  Expression_inventory_day_delay: "0 30 3 1/7 * ? *"
+  Expression_inventory_week_delay: "0 30 3 1/7 * ? *"
+  TimeZone: "GMT-4"
+
+  
