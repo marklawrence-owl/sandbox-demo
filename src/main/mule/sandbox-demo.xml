@@ -50,41 +50,16 @@ payload]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
 			<snowflake:bulk-insert doc:name="Loading data from Source to Stage" doc:id="9e6608ff-431d-4f67-997a-74307e29331d" config-ref="wildco_snowflake" >
-				<snowflake:bulk-input-parameters ><![CDATA[#[payload map ((item, index) ->{
-ACCTID: item.ACCTID,
-FSCSYR: item.FSCSYR,
-FSCSDSG: item.FSCSDSG,
-FSCSCURN: item.FSCSCURN,
-CURNTYPE: item.CURNTYPE,
-AUDTDATE: item.AUDTDATE,
-AUDTTIME: item.AUDTTIME,
-AUDTUSER: item.AUDTUSER,
-AUDTORG : item.AUDTORG,
-SWRVL: item.SWRVL,
-CODERVL: item.CODERVL,
-SCURNDEC: item.SCURNDEC,
-OPENBAL: item.OPENBAL,
-NETPERD1: item.NETPERD1,
-NETPERD2: item.NETPERD2,
-NETPERD3: item.NETPERD3,
-NETPERD4: item.NETPERD4,
-NETPERD5: item.NETPERD5,
-NETPERD6: item.NETPERD6,
-NETPERD7: item.NETPERD7,
-NETPERD8: item.NETPERD8,
-NETPERD9: item.NETPERD9,
-NETPERD10: item.NETPERD10,
-NETPERD11: item.NETPERD11,
-NETPERD12: item.NETPERD12,
-NETPERD13: item.NETPERD13,
-NETPERD14: item.NETPERD14,
-NETPERD15: item.NETPERD15,
-ACTIVITYSW: item.ACTIVITYSW,
-} )]]]></snowflake:bulk-input-parameters>
-				<snowflake:sql ><![CDATA[INSERT INTO STGFIN_WILDCOGLAFS(ACCTID,FSCSYR,FSCSDSG,FSCSCURN,CURNTYPE,AUDTDATE,AUDTTIME,AUDTUSER,AUDTORG,SWRVL,CODERVL,SCURNDEC,OPENBAL,NETPERD1,NETPERD2,NETPERD3,NETPERD4,
-NETPERD5,NETPERD6,NETPERD7,NETPERD8,NETPERD9,NETPERD10,NETPERD11,NETPERD12,NETPERD13,NETPERD14,NETPERD15,ACTIVITYSW)
-VALUES(:ACCTID,:FSCSYR,:FSCSDSG,:FSCSCURN,:CURNTYPE,:AUDTDATE,:AUDTTIME,:AUDTUSER,:AUDTORG,:SWRVL,:CODERVL,:SCURNDEC,:OPENBAL,:NETPERD1,:NETPERD2,:NETPERD3,:NETPERD4,
-:NETPERD5,:NETPERD6,:NETPERD7,:NETPERD8,:NETPERD9,:NETPERD10,:NETPERD11,:NETPERD12,:NETPERD13,:NETPERD14,:NETPERD15,:ACTIVITYSW)]]></snowflake:sql>
+				<snowflake:sql ><![CDATA[insert into STGFIN_WILDCO_CSFSC (FSCYEAR, AUDTDATE, AUDTTIME, AUDTUSER, AUDTORG, PERIODS, QTR4PERD, ACTIVE, BGNDATE1,
+                                 BGNDATE2, BGNDATE3, BGNDATE4, BGNDATE5, BGNDATE6, BGNDATE7, BGNDATE8, BGNDATE9,
+                                 BGNDATE10, BGNDATE11, BGNDATE12, BGNDATE13, ENDDATE1, ENDDATE2, ENDDATE3, ENDDATE4,
+                                 ENDDATE5, ENDDATE6, ENDDATE7, ENDDATE8, ENDDATE9, ENDDATE10, ENDDATE11, ENDDATE12,
+                                 ENDDATE13, STATUSADJ, STATUSCLS)
+VALUES(:FSCYEAR, :AUDTDATE, :AUDTTIME, :AUDTUSER, :AUDTORG, :PERIODS, :QTR4PERD, :ACTIVE, :BGNDATE1,
+                                 :BGNDATE2, :BGNDATE3, :BGNDATE4, :BGNDATE5, :BGNDATE6, :BGNDATE7, :BGNDATE8, :BGNDATE9,
+                                 :BGNDATE10, :BGNDATE11, :BGNDATE12, :BGNDATE13, :ENDDATE1, :ENDDATE2, :ENDDATE3, :ENDDATE4,
+                                 :ENDDATE5, :ENDDATE6, :ENDDATE7, :ENDDATE8, :ENDDATE9, :ENDDATE10, :ENDDATE11, :ENDDATE12,
+                                 :ENDDATE13, :STATUSADJ, :STATUSCLS)]]></snowflake:sql>
 			</snowflake:bulk-insert>
 			<ee:transform doc:name="Stage to raw conversion" doc:id="3b99d1b0-2af3-4b80-bff4-0f70111a5117" >
 				<ee:message >
@@ -94,7 +69,7 @@ output application/json
 payload]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
-			<snowflake:execute-script doc:name="Truncate and load GLAFS to raw" doc:id="372e32b1-8c74-4fdb-aa56-e0c39d284733" config-ref="wildco_snowflake" file="sql/Wildco_GLAFS.sql" />
+			<snowflake:execute-script doc:name="Truncate and load CSFSC to raw" doc:id="372e32b1-8c74-4fdb-aa56-e0c39d284733" config-ref="wildco_snowflake" file="sql/Wildco_GLAFS.sql" />
 			<logger level="INFO" doc:name="Load success message" doc:id="a031cb18-55b7-41dd-ad28-aa0c0a635ef1" message="FINANCIAL-WILDCO-PESDAT-CSFSC Loaded Sucessfully" />
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="6843fa3e-0449-4ada-a8f9-99459d041c0e" >
