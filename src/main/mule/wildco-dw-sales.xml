@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<flow name="SALES-WILDCO-PESDAT-APIBH"
+		doc:id="3009c5e3-1314-4d5f-bae3-d7f628e21ef5">
+		<scheduler doc:name="Daily"
+			doc:id="8d1f8067-5cbe-4445-910c-3ca9c7e848e6">
+			<scheduling-strategy>
+				<cron expression="${cron.Expression_sales_day}"
+					timeZone="${cron.TimeZone}" />
+
+			</scheduling-strategy>
+		</scheduler>
+		<try doc:name="Try" doc:id="c13d15e7-c328-4649-ba88-a382ad50376e">
+			<set-variable value="#[0]" doc:name="Offset Variable"
+				doc:id="b896f613-9abf-41a0-9002-0c2cdd221517" variableName="offset" />
+			<set-variable value="#[18000]" doc:name="Init Variable"
+				doc:id="b07614dc-3205-4209-abe7-4f89204f67f9" variableName="init" />
+			<snowflake:execute-script
+				doc:name="Truncate the stage"
+				doc:id="51c01e95-b49b-43a5-87d0-8e9034862941"
+				config-ref="wildco_snowflake">
+				<snowflake:sql><![CDATA[truncate table WILDCO_DEV.PESDAT_STAGE.STGSAL_WILDCOAPIBH;]]></snowflake:sql>
+			</snowflake:execute-script>
+			<flow-ref doc:name="Flow Reference"
+				doc:id="bdf4d5b0-9c3b-45d0-a24a-7ff1965e5d9d"
+				name="SALES-WILDCO-PESDAT-APIBH_Continue" />
+			<error-handler>
+				<on-error-propagate enableNotifications="true"
+					logException="true" doc:name="On Error Propagate"
+					doc:id="115229af-4ba5-4cc2-ba37-7913bf6cae13">
+					<logger level="ERROR" doc:name="Error Message"
+						doc:id="99fc2c92-9f86-4053-b80d-5884f1781bc9"
+						message="SALES_WILDCO_APIBH has an error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</flow>
+	<sub-flow name="SALES-WILDCO-PESDAT-APIBH_Continue"
+		doc:id="6e1fe426-a5c2-4a21-b605-7b1a595fcd5e">
+		<try doc:name="Try" doc:id="d030c80a-8db3-4254-9932-8ebe388644e3">
+			<db:select doc:name="Wildco_source"
+				doc:id="8cfd726c-7ec4-4f83-91e5-83ccd7ead621"
+				config-ref="wildco_source">
+				<db:sql><![CDATA[select * from [PESDAT].[dbo].[APIBH] order by AUDTTIME desc offset :offset ROWS FETCH NEXT :next ROWS ONLY;]]></db:sql>
+				<db:input-parameters><![CDATA[#[{'offset':vars.offset,'next':vars.init}]]]></db:input-parameters>
+			</db:select>
+			<choice doc:name="Choice"
+				doc:id="7f26ee2d-dcfc-492b-bd7c-b4b23c34d4e7">
+				<when expression="#[payload !=[]]">
+					<snowflake:bulk-insert
+						doc:name="Loading data from Source to Stage"
+						doc:id="4ea7a05e-034a-410e-a2c3-589dd197ddc3"
+						config-ref="wildco_snowflake">
+						<snowflake:sql><![CDATA[INSERT INTO WILDCO_DEV.PESDAT_STAGE.STGSAL_WILDCOAPIBH(CNTBTCH,CNTITEM,AUDTDATE,AUDTTIME,AUDTUSER,AUDTORG,IDVEND,IDINVC,IDRMITTO,TEXTTRX,IDTRX,INVCSTTS,ORDRNBR,PONBR,INVCDESC,SWPRTINVC,INVCAPPLTO,IDACCTSET,DATEINVC,DATEASOF,FISCYR,FISCPER,CODECURN,RATETYPE,SWMANRTE,EXCHRATEHC,ORIGRATEHC,TERMCODE,SWTERMOVRD,DATEDUE,DATEDISC,PCTDISC,AMTDISCAVL,LASTLINE,SWTAXBL,SWCALCTX,CODETAXGRP,CODETAX1,CODETAX2,CODETAX3,CODETAX4,CODETAX5,TAXCLASS1,TAXCLASS2,TAXCLASS3,TAXCLASS4,TAXCLASS5,BASETAX1,BASETAX2,BASETAX3,BASETAX4,BASETAX5,AMTTAX1,AMTTAX2,AMTTAX3,AMTTAX4,AMTTAX5,AMT1099,AMTDISTSET,AMTTAXDIST,AMTINVCTOT,AMTALLOCTX,CNTPAYMSCH,AMTTOTDIST,AMTGROSDST,IDPPD,TEXTRMIT,TEXTSTE1,TEXTSTE2,TEXTSTE3,TEXTSTE4,NAMECITY,CODESTTE,CODEPSTL,CODECTRY,NAMECTAC,TEXTPHON,TEXTFAX,DATERATE,AMTRECTAX,CODEPAYPPD,CODEVNDGRP,TERMSDESC,IDDISTSET,ID1099CLAS,AMTTAXTOT,AMTGROSTOT,SWTAXINCL1,SWTAXINCL2,SWTAXINCL3,SWTAXINCL4,SWTAXINCL5,AMTEXPTAX,AMTAXTOBE,TAXOUTBAL,CODEOPER,ACCTREC1,ACCTREC2,ACCTREC3,ACCTREC4,ACCTREC5,ACCTEXP1,ACCTEXP2,ACCTEXP3,ACCTEXP4,ACCTEXP5,DRILLAPP,DRILLTYPE,DRILLDWNLK,SWJOB,AMTRECDIST,AMTEXPDIST,ERRBATCH,ERRENTRY,EMAIL,CTACPHONE,CTACFAX,CTACEMAIL,AMTPPD,IDSTDINVC,DATEPRCS,AMTDSBWTAX,AMTDSBNTAX,AMTDSCBASE,SWRTGINVC,RTGAPPLYTO,SWRTG,RTGAMT,RTGPERCENT,RTGDAYS,RTGDATEDUE,RTGTERMS,SWRTGDDTOV,SWRTGAMTOV,SWRTGRATE,SWTXBSECTL,"VALUES",ORIGCOMP,DETAILCNT,SRCEAPPL,SWHOLD,APVERSION,TAXVERSION,SWTXRTGRPT,CODECURNRC,SWTXCTLRC,RATERC,RATETYPERC,RATEDATERC,RATEOPRC,SWRATERC,TXAMT1RC,TXAMT2RC,TXAMT3RC,TXAMT4RC,TXAMT5RC,TXTOTRC,TXALLRC,TXEXPRC,TXRECRC,TXBSERT1TC,TXBSERT2TC,TXBSERT3TC,TXBSERT4TC,TXBSERT5TC,TXAMTRT1TC,TXAMTRT2TC,TXAMTRT3TC,TXAMTRT4TC,TXAMTRT5TC,TXBSE1HC,TXBSE2HC,TXBSE3HC,TXBSE4HC,TXBSE5HC,TXAMT1HC,TXAMT2HC,TXAMT3HC,TXAMT4HC,TXAMT5HC,AMTGROSHC,RTGAMTHC,AMTDISCHC,AMT1099HC,AMTPPDHC,AMTDUETC,AMTDUEHC,TEXTVEN,ENTEREDBY,DATEBUS,IDN,AMTWHT1TC,AMTWHT2TC,AMTWHT3TC,AMTWHT4TC,AMTWHT5TC,AMTCXBS1TC,AMTCXBS2TC,AMTCXBS3TC,AMTCXBS4TC,AMTCXBS5TC,AMTCXTX1TC,AMTCXTX2TC,AMTCXTX3TC,AMTCXTX4TC,AMTCXTX5TC)
+VALUES(:CNTBTCH, :CNTITEM, :AUDTDATE, :AUDTTIME, :AUDTUSER, :AUDTORG, :IDVEND, :IDINVC, :IDRMITTO, :TEXTTRX, :IDTRX, :INVCSTTS, :ORDRNBR, :PONBR, :INVCDESC, :SWPRTINVC, :INVCAPPLTO, :IDACCTSET, :DATEINVC, :DATEASOF, :FISCYR, :FISCPER, :CODECURN, :RATETYPE, :SWMANRTE, :EXCHRATEHC, :ORIGRATEHC, :TERMCODE, :SWTERMOVRD, :DATEDUE, :DATEDISC, :PCTDISC, :AMTDISCAVL, :LASTLINE, :SWTAXBL, :SWCALCTX, :CODETAXGRP, :CODETAX1, :CODETAX2, :CODETAX3, :CODETAX4, :CODETAX5, :TAXCLASS1, :TAXCLASS2, :TAXCLASS3, :TAXCLASS4, :TAXCLASS5, :BASETAX1, :BASETAX2, :BASETAX3, :BASETAX4, :BASETAX5, :AMTTAX1, :AMTTAX2, :AMTTAX3, :AMTTAX4, :AMTTAX5, :AMT1099, :AMTDISTSET, :AMTTAXDIST, :AMTINVCTOT, :AMTALLOCTX, :CNTPAYMSCH, :AMTTOTDIST, :AMTGROSDST, :IDPPD, :TEXTRMIT, :TEXTSTE1, :TEXTSTE2, :TEXTSTE3, :TEXTSTE4, :NAMECITY, :CODESTTE, :CODEPSTL, :CODECTRY, :NAMECTAC, :TEXTPHON, :TEXTFAX, :DATERATE, :AMTRECTAX, :CODEPAYPPD, :CODEVNDGRP, :TERMSDESC, :IDDISTSET, :ID1099CLAS, :AMTTAXTOT, :AMTGROSTOT, :SWTAXINCL1, :SWTAXINCL2, :SWTAXINCL3, :SWTAXINCL4, :SWTAXINCL5, :AMTEXPTAX, :AMTAXTOBE, :TAXOUTBAL, :CODEOPER, :ACCTREC1, :ACCTREC2, :ACCTREC3, :ACCTREC4, :ACCTREC5, :ACCTEXP1, :ACCTEXP2, :ACCTEXP3, :ACCTEXP4, :ACCTEXP5, :DRILLAPP, :DRILLTYPE, :DRILLDWNLK, :SWJOB, :AMTRECDIST, :AMTEXPDIST, :ERRBATCH, :ERRENTRY, :EMAIL, :CTACPHONE, :CTACFAX, :CTACEMAIL, :AMTPPD, :IDSTDINVC, :DATEPRCS, :AMTDSBWTAX, :AMTDSBNTAX, :AMTDSCBASE, :SWRTGINVC, :RTGAPPLYTO, :SWRTG, :RTGAMT, :RTGPERCENT, :RTGDAYS, :RTGDATEDUE, :RTGTERMS, :SWRTGDDTOV, :SWRTGAMTOV, :SWRTGRATE, :SWTXBSECTL, :VALUES, :ORIGCOMP, :DETAILCNT, :SRCEAPPL, :SWHOLD, :APVERSION, :TAXVERSION, :SWTXRTGRPT, :CODECURNRC, :SWTXCTLRC, :RATERC, :RATETYPERC, :RATEDATERC, :RATEOPRC, :SWRATERC, :TXAMT1RC, :TXAMT2RC, :TXAMT3RC, :TXAMT4RC, :TXAMT5RC, :TXTOTRC, :TXALLRC, :TXEXPRC, :TXRECRC, :TXBSERT1TC, :TXBSERT2TC, :TXBSERT3TC, :TXBSERT4TC, :TXBSERT5TC, :TXAMTRT1TC, :TXAMTRT2TC, :TXAMTRT3TC, :TXAMTRT4TC, :TXAMTRT5TC, :TXBSE1HC, :TXBSE2HC, :TXBSE3HC, :TXBSE4HC, :TXBSE5HC, :TXAMT1HC, :TXAMT2HC, :TXAMT3HC, :TXAMT4HC, :TXAMT5HC, :AMTGROSHC, :RTGAMTHC, :AMTDISCHC, :AMT1099HC, :AMTPPDHC, :AMTDUETC, :AMTDUEHC, :TEXTVEN, :ENTEREDBY, :DATEBUS, :IDN, :AMTWHT1TC, :AMTWHT2TC, :AMTWHT3TC, :AMTWHT4TC, :AMTWHT5TC, :AMTCXBS1TC, :AMTCXBS2TC, :AMTCXBS3TC, :AMTCXBS4TC, :AMTCXBS5TC, :AMTCXTX1TC, :AMTCXTX2TC, :AMTCXTX3TC, :AMTCXTX4TC, :AMTCXTX5TC)]]></snowflake:sql>
+					</snowflake:bulk-insert>
+					<set-variable value="#[vars.offset + vars.init]"
+						doc:name="Offset_update-variable"
+						doc:id="eb3acf3f-4093-474a-ad3d-559c79caeb9c"
+						variableName="offset" />
+					<flow-ref doc:name="Flow Reference"
+						doc:id="d02708c2-dc45-4eed-bda0-7e77baa32596"
+						name="SALES-WILDCO-PESDAT-APIBH_Continue" />
+				</when>
+				<otherwise>
+					<snowflake:execute-script
+						doc:name="Truncate and load APIBH to raw"
+						doc:id="d9d4cfdd-8bd1-41df-8878-3f5613f59fb5"
+						config-ref="wildco_snowflake"
+						file="sql/SALES_WILDCO_APIBH.sql" />
+					<logger level="INFO" doc:name="Load success message"
+						doc:id="7335eeb4-35ea-4edb-8ae1-aa1bc989a135"
+						message="SALES_WILDCO_APIBH Loaded Successfully" />
+				</otherwise>
+			</choice>
+			<error-handler>
+				<on-error-propagate enableNotifications="true"
+					logException="true" doc:name="On Error Propagate"
+					doc:id="2cfd6ef0-a584-46e4-bc96-f5203cc97d9c">
+					<logger level="ERROR" doc:name="Error Message"
+						doc:id="2d71df87-d20f-4cfe-a8b6-baf25f9a71e4"
+						message="SALES_WILDCO_APIBH_Continue has an error" />
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</sub-flow>
+
+</mule>
